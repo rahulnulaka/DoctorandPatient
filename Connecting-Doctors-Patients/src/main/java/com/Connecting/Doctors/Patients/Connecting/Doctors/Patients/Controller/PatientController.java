@@ -22,15 +22,34 @@ public class PatientController {
     @PostMapping("/addPatient")
     public ResponseEntity<String> addPatient(@Valid @RequestBody Patient patient, BindingResult result) throws Exception {
         if(result.hasErrors()){
-            String patientNameErrorMessage= (result.getFieldError("patientName")==null)?" ":result.getFieldError("patientName").getDefaultMessage();
-            String patientLocationErrorMessage= (result.getFieldError("city")==null)?" ":result.getFieldError("city").getDefaultMessage();
-            String patientEmailErrorMessage= (result.getFieldError("email")==null)?" ":result.getFieldError("email").getDefaultMessage();
-            String patientPhoneNoErrorMessage= (result.getFieldError("phoneNo")==null)?" ":result.getFieldError("phoneNo").getDefaultMessage();
-            String errorMessage=patientNameErrorMessage+"\n"+patientLocationErrorMessage+"\n"+patientEmailErrorMessage+"\n"+ patientPhoneNoErrorMessage;
+            String errorMessage="";
+
+            if(result.getFieldError("patientName")!=null)
+                errorMessage.concat(result.getFieldError("patientName").getDefaultMessage() + "\n");
+
+            if(result.getFieldError("city")!=null)
+                errorMessage.concat(result.getFieldError("city").getDefaultMessage() + "\n");
+
+            if(result.getFieldError("email")!=null)
+                errorMessage.concat(result.getFieldError("email").getDefaultMessage() + "\n");
+
+            if(result.getFieldError("phoneNo")!=null)
+                errorMessage.concat(result.getFieldError("phoneNo").getDefaultMessage() + "\n");
+
             return new ResponseEntity<>(errorMessage,HttpStatus.BAD_REQUEST);
         }
             String responseMessage= patientService.addPatient(patient);
             return new ResponseEntity<>(responseMessage,HttpStatus.OK);
+    }
+    @DeleteMapping("/deletePatient")
+    public ResponseEntity<String> deletePatient(@RequestParam("patientId") Integer patientId){
+        try{
+            String responseMessage=patientService.deletePatient(patientId);
+            return new ResponseEntity<>(responseMessage,HttpStatus.OK);
+        }
+        catch(Exception error){
+            return new ResponseEntity<>(error.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @GetMapping("/getDoctors")
     public ResponseEntity<?> getDoctors(@RequestParam("patientId")Integer patientId){
